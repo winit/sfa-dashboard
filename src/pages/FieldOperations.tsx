@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { colors } from '../styles/colors'
-import { JourneyMapGoogle } from '../components/JourneyMapGoogleFixed'
+import { MapPlaceholder } from '../components/MapPlaceholder'
 import { TimeMotionAnalysis } from '../components/TimeMotionAnalysis'
 import { JourneyCompliance } from '../components/JourneyCompliance'
 
@@ -285,7 +285,7 @@ export const FieldOperations: React.FC = () => {
             <h3 style={{ fontSize: '18px', fontWeight: '600', marginBottom: '20px', color: colors.gray[900] }}>
               Live Tracking - {selectedDate}
             </h3>
-            <JourneyMapGoogle 
+            <MapPlaceholder 
               salesmen={salesmen}
               selectedSalesman={selectedSalesman}
               date={selectedDate}

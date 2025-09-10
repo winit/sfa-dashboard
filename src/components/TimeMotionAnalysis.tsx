@@ -12,7 +12,7 @@ interface TimeMotionAnalysisProps {
 const generateTimeBlocks = () => {
   const blocks = []
   const activityColors = {
-    warehouse: colors.secondary.main,
+    warehouse: colors.info.main,
     productive: colors.success.main,
     travel: colors.primary[500],
     break: colors.warning.main,
@@ -176,7 +176,7 @@ const generateDailySummary = (timeBlocks: any[]) => {
     { name: 'Productive', value: summary.productive, color: colors.success.main },
     { name: 'Travel', value: summary.travel, color: colors.primary[500] },
     { name: 'Break', value: summary.break, color: colors.warning.main },
-    { name: 'Warehouse', value: summary.warehouse, color: colors.secondary.main },
+    { name: 'Warehouse', value: summary.warehouse, color: colors.info.main },
     { name: 'Idle', value: summary.idle, color: colors.error.main },
     { name: 'Admin', value: summary.admin, color: colors.gray[500] }
   ].filter(item => item.value > 0) // Only show activities that occurred

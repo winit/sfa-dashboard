@@ -8,11 +8,11 @@ interface TimeMotionAnalysisProps {
   date: string
 }
 
-// Generate time blocks for a salesman's day
+// Generate realistic time blocks for a salesman's day journey
 const generateTimeBlocks = () => {
   const blocks = []
-  const activities = ['productive', 'travel', 'break', 'idle', 'admin']
   const activityColors = {
+    warehouse: colors.secondary.main,
     productive: colors.success.main,
     travel: colors.primary[500],
     break: colors.warning.main,
@@ -20,41 +20,166 @@ const generateTimeBlocks = () => {
     admin: colors.gray[500]
   }
   
-  let currentHour = 8
-  while (currentHour < 18) {
-    const duration = Math.random() * 2 + 0.5 // 0.5 to 2.5 hours
-    const activity = activities[Math.floor(Math.random() * activities.length)]
-    
+  // Customer names for realistic simulation
+  const customers = [
+    'Carrefour - City Centre', 'Spinneys - Marina Mall', 'Lulu Hypermarket - Barsha',
+    'Union Coop - Jumeirah', 'Choithrams - Silicon Oasis', 'Geant - Ibn Battuta',
+    'West Zone Supermarket', 'Al Maya - Discovery Gardens'
+  ]
+  
+  let currentTime = 8 * 60 // Start at 8:00 AM in minutes
+  const endTime = 18 * 60 // End at 6:00 PM
+  
+  // Leave warehouse
+  blocks.push({
+    startTime: '8:00',
+    endTime: '8:15',
+    activity: 'warehouse',
+    color: activityColors.warehouse,
+    duration: 15,
+    description: 'Morning briefing & load vehicle',
+    customer: null
+  })
+  currentTime = 8 * 60 + 15
+  
+  // Morning customers (3-4 visits)
+  const morningCustomers = customers.slice(0, 4)
+  for (let i = 0; i < morningCustomers.length && currentTime < 12 * 60; i++) {
+    // Travel to customer
+    const travelTime = Math.floor(Math.random() * 20) + 15 // 15-35 minutes
+    const travelEndTime = Math.min(currentTime + travelTime, 12 * 60)
     blocks.push({
-      startTime: `${currentHour}:00`,
-      endTime: `${Math.min(currentHour + duration, 18).toFixed(0)}:00`,
-      activity,
-      color: activityColors[activity],
-      duration: duration * 60, // in minutes
-      customer: activity === 'productive' ? `Customer ${Math.floor(Math.random() * 100)}` : null
+      startTime: `${Math.floor(currentTime / 60)}:${String(currentTime % 60).padStart(2, '0')}`,
+      endTime: `${Math.floor(travelEndTime / 60)}:${String(travelEndTime % 60).padStart(2, '0')}`,
+      activity: 'travel',
+      color: activityColors.travel,
+      duration: travelEndTime - currentTime,
+      description: `Travel to ${morningCustomers[i]}`,
+      customer: null
     })
+    currentTime = travelEndTime
     
-    currentHour += duration
+    if (currentTime >= 12 * 60) break
+    
+    // Visit customer
+    const visitTime = Math.floor(Math.random() * 30) + 30 // 30-60 minutes
+    const visitEndTime = Math.min(currentTime + visitTime, 12 * 60)
+    blocks.push({
+      startTime: `${Math.floor(currentTime / 60)}:${String(currentTime % 60).padStart(2, '0')}`,
+      endTime: `${Math.floor(visitEndTime / 60)}:${String(visitEndTime % 60).padStart(2, '0')}`,
+      activity: 'productive',
+      color: activityColors.productive,
+      duration: visitEndTime - currentTime,
+      description: 'Customer visit',
+      customer: morningCustomers[i]
+    })
+    currentTime = visitEndTime
+  }
+  
+  // Lunch break
+  if (currentTime < 13 * 60) {
+    blocks.push({
+      startTime: `${Math.floor(currentTime / 60)}:${String(currentTime % 60).padStart(2, '0')}`,
+      endTime: '13:00',
+      activity: 'break',
+      color: activityColors.break,
+      duration: 13 * 60 - currentTime,
+      description: 'Lunch break',
+      customer: null
+    })
+    currentTime = 13 * 60
+  }
+  
+  // Afternoon customers (3-4 visits)
+  const afternoonCustomers = customers.slice(4, 8)
+  for (let i = 0; i < afternoonCustomers.length && currentTime < 17 * 60; i++) {
+    // Travel to customer
+    const travelTime = Math.floor(Math.random() * 20) + 15 // 15-35 minutes
+    const travelEndTime = Math.min(currentTime + travelTime, 17 * 60)
+    blocks.push({
+      startTime: `${Math.floor(currentTime / 60)}:${String(currentTime % 60).padStart(2, '0')}`,
+      endTime: `${Math.floor(travelEndTime / 60)}:${String(travelEndTime % 60).padStart(2, '0')}`,
+      activity: 'travel',
+      color: activityColors.travel,
+      duration: travelEndTime - currentTime,
+      description: `Travel to ${afternoonCustomers[i]}`,
+      customer: null
+    })
+    currentTime = travelEndTime
+    
+    if (currentTime >= 17 * 60) break
+    
+    // Visit customer
+    const visitTime = Math.floor(Math.random() * 30) + 25 // 25-55 minutes
+    const visitEndTime = Math.min(currentTime + visitTime, 17 * 60)
+    blocks.push({
+      startTime: `${Math.floor(currentTime / 60)}:${String(currentTime % 60).padStart(2, '0')}`,
+      endTime: `${Math.floor(visitEndTime / 60)}:${String(visitEndTime % 60).padStart(2, '0')}`,
+      activity: 'productive',
+      color: activityColors.productive,
+      duration: visitEndTime - currentTime,
+      description: 'Customer visit',
+      customer: afternoonCustomers[i]
+    })
+    currentTime = visitEndTime
+  }
+  
+  // Return to warehouse
+  if (currentTime < 17 * 60 + 30) {
+    const travelTime = Math.floor(Math.random() * 15) + 20 // 20-35 minutes back
+    blocks.push({
+      startTime: `${Math.floor(currentTime / 60)}:${String(currentTime % 60).padStart(2, '0')}`,
+      endTime: `${Math.floor((currentTime + travelTime) / 60)}:${String((currentTime + travelTime) % 60).padStart(2, '0')}`,
+      activity: 'travel',
+      color: activityColors.travel,
+      duration: travelTime,
+      description: 'Return to warehouse',
+      customer: null
+    })
+    currentTime += travelTime
+  }
+  
+  // End of day at warehouse
+  if (currentTime < endTime) {
+    blocks.push({
+      startTime: `${Math.floor(currentTime / 60)}:${String(currentTime % 60).padStart(2, '0')}`,
+      endTime: '18:00',
+      activity: 'warehouse',
+      color: activityColors.warehouse,
+      duration: endTime - currentTime,
+      description: 'Unload vehicle & daily report',
+      customer: null
+    })
   }
   
   return blocks
 }
 
-// Generate daily summary data
-const generateDailySummary = () => {
-  const productive = Math.floor(Math.random() * 180 + 180) // 3-6 hours
-  const travel = Math.floor(Math.random() * 120 + 60) // 1-3 hours
-  const breakTime = Math.floor(Math.random() * 60 + 30) // 0.5-1.5 hours
-  const idle = Math.floor(Math.random() * 60 + 30) // 0.5-1.5 hours
-  const admin = Math.floor(Math.random() * 30 + 15) // 0.25-0.75 hours
+// Generate daily summary data from time blocks
+const generateDailySummary = (timeBlocks: any[]) => {
+  const summary = {
+    productive: 0,
+    travel: 0,
+    break: 0,
+    warehouse: 0,
+    idle: 0,
+    admin: 0
+  }
+  
+  timeBlocks.forEach(block => {
+    if (summary[block.activity] !== undefined) {
+      summary[block.activity] += block.duration
+    }
+  })
   
   return [
-    { name: 'Productive', value: productive, color: colors.success.main },
-    { name: 'Travel', value: travel, color: colors.primary[500] },
-    { name: 'Break', value: breakTime, color: colors.warning.main },
-    { name: 'Idle', value: idle, color: colors.error.main },
-    { name: 'Admin', value: admin, color: colors.gray[500] }
-  ]
+    { name: 'Productive', value: summary.productive, color: colors.success.main },
+    { name: 'Travel', value: summary.travel, color: colors.primary[500] },
+    { name: 'Break', value: summary.break, color: colors.warning.main },
+    { name: 'Warehouse', value: summary.warehouse, color: colors.secondary.main },
+    { name: 'Idle', value: summary.idle, color: colors.error.main },
+    { name: 'Admin', value: summary.admin, color: colors.gray[500] }
+  ].filter(item => item.value > 0) // Only show activities that occurred
 }
 
 // Generate hourly productivity data
@@ -75,7 +200,7 @@ const generateHourlyProductivity = () => {
 
 export const TimeMotionAnalysis: React.FC<TimeMotionAnalysisProps> = ({ salesmen, selectedSalesman, date }) => {
   const timeBlocks = generateTimeBlocks()
-  const dailySummary = generateDailySummary()
+  const dailySummary = generateDailySummary(timeBlocks)
   const hourlyData = generateHourlyProductivity()
   
   const totalMinutes = dailySummary.reduce((sum, item) => sum + item.value, 0)
@@ -175,7 +300,7 @@ export const TimeMotionAnalysis: React.FC<TimeMotionAnalysisProps> = ({ salesmen
                     position: 'relative',
                     cursor: 'pointer'
                   }}
-                  title={`${block.activity}: ${block.startTime} - ${block.endTime}${block.customer ? ` (${block.customer})` : ''}`}
+                  title={`${block.description || block.activity}: ${block.startTime} - ${block.endTime}${block.customer ? ` (${block.customer})` : ''}`}
                 >
                   {block.duration > 30 && (
                     <div style={{
@@ -224,10 +349,13 @@ export const TimeMotionAnalysis: React.FC<TimeMotionAnalysisProps> = ({ salesmen
                     {block.startTime} - {block.endTime}
                   </span>
                   <span style={{ color: colors.gray[700], fontWeight: '500', flex: 1 }}>
-                    {block.activity === 'productive' ? 'Customer Visit' :
-                     block.activity === 'travel' ? 'Travel' :
-                     block.activity === 'break' ? 'Break' :
-                     block.activity === 'idle' ? 'Idle Time' : 'Admin Work'}
+                    {block.description || (
+                      block.activity === 'productive' ? 'Customer Visit' :
+                      block.activity === 'travel' ? 'Travel' :
+                      block.activity === 'break' ? 'Break' :
+                      block.activity === 'warehouse' ? 'Warehouse' :
+                      block.activity === 'idle' ? 'Idle Time' : 'Admin Work'
+                    )}
                   </span>
                   {block.customer && (
                     <span style={{ color: colors.gray[600], fontSize: '11px' }}>
@@ -347,7 +475,12 @@ export const TimeMotionAnalysis: React.FC<TimeMotionAnalysisProps> = ({ salesmen
             Productivity Score
           </div>
           <div style={{ fontSize: '28px', fontWeight: '700', color: colors.success.main }}>
-            {Math.floor(Math.random() * 20 + 70)}%
+            {(() => {
+              const productive = dailySummary.find(item => item.name === 'Productive')?.value || 0
+              const total = dailySummary.reduce((sum, item) => sum + item.value, 0)
+              const score = total > 0 ? Math.round((productive / total) * 100) : 0
+              return `${score}%`
+            })()}
           </div>
           <div style={{
             marginTop: '8px',
@@ -357,7 +490,11 @@ export const TimeMotionAnalysis: React.FC<TimeMotionAnalysisProps> = ({ salesmen
             overflow: 'hidden'
           }}>
             <div style={{
-              width: `${Math.floor(Math.random() * 20 + 70)}%`,
+              width: (() => {
+                const productive = dailySummary.find(item => item.name === 'Productive')?.value || 0
+                const total = dailySummary.reduce((sum, item) => sum + item.value, 0)
+                return total > 0 ? `${(productive / total) * 100}%` : '0%'
+              })(),
               height: '100%',
               backgroundColor: colors.success.main
             }} />
@@ -371,13 +508,13 @@ export const TimeMotionAnalysis: React.FC<TimeMotionAnalysisProps> = ({ salesmen
           border: `1px solid ${colors.gray[200]}`
         }}>
           <div style={{ fontSize: '13px', color: colors.gray[600], marginBottom: '8px' }}>
-            Travel Efficiency
+            Customer Visits
           </div>
           <div style={{ fontSize: '28px', fontWeight: '700', color: colors.primary[500] }}>
-            {Math.floor(Math.random() * 15 + 80)}%
+            {timeBlocks.filter(block => block.activity === 'productive').length}
           </div>
           <div style={{ fontSize: '11px', color: colors.gray[500], marginTop: '4px' }}>
-            Optimal route usage
+            Total visits today
           </div>
         </div>
         
@@ -388,13 +525,16 @@ export const TimeMotionAnalysis: React.FC<TimeMotionAnalysisProps> = ({ salesmen
           border: `1px solid ${colors.gray[200]}`
         }}>
           <div style={{ fontSize: '13px', color: colors.gray[600], marginBottom: '8px' }}>
-            Time Utilization
+            Travel Time
           </div>
           <div style={{ fontSize: '28px', fontWeight: '700', color: colors.gray[900] }}>
-            {Math.floor(Math.random() * 10 + 85)}%
+            {(() => {
+              const travel = dailySummary.find(item => item.name === 'Travel')?.value || 0
+              return `${Math.floor(travel / 60)}h ${travel % 60}m`
+            })()}
           </div>
           <div style={{ fontSize: '11px', color: colors.gray[500], marginTop: '4px' }}>
-            Working time vs available
+            Total travel duration
           </div>
         </div>
       </div>

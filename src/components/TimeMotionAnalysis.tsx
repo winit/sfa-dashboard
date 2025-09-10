@@ -251,7 +251,7 @@ export const TimeMotionAnalysis: React.FC<TimeMotionAnalysisProps> = ({ salesmen
       </div>
       
       {/* Main Content Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px', marginBottom: '24px' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '24px', marginBottom: '24px' }}>
         {/* Timeline View */}
         <div style={{
           padding: '20px',
@@ -263,64 +263,50 @@ export const TimeMotionAnalysis: React.FC<TimeMotionAnalysisProps> = ({ salesmen
             Daily Timeline
           </h4>
           
-          {/* Hour Grid */}
-          <div style={{ position: 'relative', height: '60px', marginBottom: '20px' }}>
-            {/* Hour markers */}
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              position: 'absolute',
-              width: '100%',
-              top: 0,
-              fontSize: '10px',
-              color: colors.gray[500]
-            }}>
-              {[8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18].map(hour => (
-                <span key={hour} style={{ width: '9%', textAlign: 'center' }}>
-                  {hour > 12 ? `${hour - 12}PM` : `${hour}AM`}
-                </span>
-              ))}
-            </div>
-            
-            {/* Time blocks visualization */}
-            <div style={{
-              display: 'flex',
-              height: '40px',
-              marginTop: '20px',
-              borderRadius: '4px',
-              overflow: 'hidden',
-              border: `1px solid ${colors.gray[200]}`
-            }}>
-              {timeBlocks.map((block, index) => (
-                <div
-                  key={index}
-                  style={{
-                    flex: block.duration,
-                    backgroundColor: block.color,
-                    position: 'relative',
-                    cursor: 'pointer'
-                  }}
-                  title={`${block.description || block.activity}: ${block.startTime} - ${block.endTime}${block.customer ? ` (${block.customer})` : ''}`}
-                >
-                  {block.duration > 30 && (
-                    <div style={{
-                      position: 'absolute',
-                      top: '50%',
-                      left: '50%',
-                      transform: 'translate(-50%, -50%)',
-                      fontSize: '10px',
-                      color: 'white',
-                      fontWeight: '600',
-                      whiteSpace: 'nowrap'
-                    }}>
-                      {block.activity === 'productive' && block.customer ? 
-                        block.customer.substring(0, 10) : 
-                        block.activity.substring(0, 3).toUpperCase()}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
+          {/* Time blocks visualization */}
+          <div style={{
+            display: 'flex',
+            height: '60px',
+            borderRadius: '8px',
+            overflow: 'hidden',
+            border: `1px solid ${colors.gray[200]}`,
+            marginBottom: '24px'
+          }}>
+            {timeBlocks.map((block, index) => (
+              <div
+                key={index}
+                style={{
+                  flex: block.duration,
+                  backgroundColor: block.color,
+                  position: 'relative',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+                title={`${block.description || block.activity}: ${block.startTime} - ${block.endTime}${block.customer ? ` (${block.customer})` : ''}`}
+              >
+                {block.duration > 20 && (
+                  <div style={{
+                    fontSize: '11px',
+                    color: 'white',
+                    fontWeight: '600',
+                    whiteSpace: 'nowrap',
+                    textOverflow: 'ellipsis',
+                    overflow: 'hidden',
+                    padding: '0 4px',
+                    maxWidth: '100%'
+                  }}>
+                    {block.activity === 'productive' && block.customer ? 
+                      block.customer.split(' - ')[0] : 
+                      block.activity === 'travel' ? 'TRA' :
+                      block.activity === 'break' ? 'BRE' :
+                      block.activity === 'warehouse' ? 'WAR' :
+                      block.activity.substring(0, 3).toUpperCase()}
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
           
           {/* Activity List */}
@@ -370,7 +356,10 @@ export const TimeMotionAnalysis: React.FC<TimeMotionAnalysisProps> = ({ salesmen
             </div>
           </div>
         </div>
-        
+      </div>
+      
+      {/* Two Column Grid for Charts */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px', marginBottom: '24px' }}>
         {/* Pie Chart */}
         <div style={{
           padding: '20px',
@@ -427,35 +416,35 @@ export const TimeMotionAnalysis: React.FC<TimeMotionAnalysisProps> = ({ salesmen
             ))}
           </div>
         </div>
-      </div>
-      
-      {/* Hourly Productivity Chart */}
-      <div style={{
-        padding: '20px',
-        borderRadius: '8px',
-        backgroundColor: colors.background.secondary,
-        border: `1px solid ${colors.gray[200]}`
-      }}>
-        <h4 style={{ fontSize: '14px', fontWeight: '600', marginBottom: '20px', color: colors.gray[800] }}>
-          Hourly Productivity Breakdown
-        </h4>
-        <ResponsiveContainer width="100%" height={250}>
-          <BarChart data={hourlyData}>
-            <CartesianGrid strokeDasharray="3 3" stroke={colors.gray[200]} />
-            <XAxis dataKey="hour" stroke={colors.gray[400]} tick={{ fill: colors.gray[500], fontSize: 11 }} />
-            <YAxis stroke={colors.gray[400]} tick={{ fill: colors.gray[500], fontSize: 11 }} />
-            <Tooltip
-              contentStyle={{
-                backgroundColor: colors.background.primary,
-                border: `1px solid ${colors.gray[200]}`,
-                borderRadius: '6px'
-              }}
-            />
-            <Bar dataKey="productive" stackId="a" fill={colors.success.main} name="Productive" />
-            <Bar dataKey="travel" stackId="a" fill={colors.primary[500]} name="Travel" />
-            <Bar dataKey="other" stackId="a" fill={colors.gray[400]} name="Other" />
-          </BarChart>
-        </ResponsiveContainer>
+        
+        {/* Hourly Productivity Chart */}
+        <div style={{
+          padding: '20px',
+          borderRadius: '8px',
+          backgroundColor: colors.background.secondary,
+          border: `1px solid ${colors.gray[200]}`
+        }}>
+          <h4 style={{ fontSize: '14px', fontWeight: '600', marginBottom: '20px', color: colors.gray[800] }}>
+            Hourly Productivity Breakdown
+          </h4>
+          <ResponsiveContainer width="100%" height={250}>
+            <BarChart data={hourlyData}>
+              <CartesianGrid strokeDasharray="3 3" stroke={colors.gray[200]} />
+              <XAxis dataKey="hour" stroke={colors.gray[400]} tick={{ fill: colors.gray[500], fontSize: 11 }} />
+              <YAxis stroke={colors.gray[400]} tick={{ fill: colors.gray[500], fontSize: 11 }} />
+              <Tooltip
+                contentStyle={{
+                  backgroundColor: colors.background.primary,
+                  border: `1px solid ${colors.gray[200]}`,
+                  borderRadius: '6px'
+                }}
+              />
+              <Bar dataKey="productive" stackId="a" fill={colors.success.main} name="Productive" />
+              <Bar dataKey="travel" stackId="a" fill={colors.primary[500]} name="Travel" />
+              <Bar dataKey="other" stackId="a" fill={colors.gray[400]} name="Other" />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
       </div>
       
       {/* Performance Metrics */}

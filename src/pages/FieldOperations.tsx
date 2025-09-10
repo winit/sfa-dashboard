@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { colors } from '../styles/colors'
 import { JourneyMapGoogle } from '../components/JourneyMapGoogleFixed'
-import { TestGoogleMaps } from '../components/TestGoogleMaps'
 import { TimeMotionAnalysis } from '../components/TimeMotionAnalysis'
 import { JourneyCompliance } from '../components/JourneyCompliance'
 
@@ -337,7 +336,7 @@ export const FieldOperations: React.FC = () => {
                     { type: 'Modern Trade', duration: 38, color: colors.primary[500] },
                     { type: 'Traditional Trade', duration: 25, color: colors.chart.green },
                     { type: 'HORECA', duration: 30, color: colors.chart.orange },
-                    { type: 'Wholesale', duration: 20, color: colors.chart.red }
+                    { type: 'Wholesale', duration: 20, color: colors.error.main }
                   ].map(item => (
                     <div key={item.type} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                       <span style={{ fontSize: '13px', color: colors.gray[600], width: '120px' }}>
